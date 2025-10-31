@@ -1,709 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Health Assistant 2.0</title>
-    
-    <!-- All CSS is embedded here -->
-    <style>
-        /* --- CSS Variables (Theme) --- */
-        :root {
-            --primary-color: #007BFF;
-            --primary-dark: #0056b3;
-            --secondary-color: #14B8A6;
-            --light-bg: #F8FAFC;
-            --text-dark: #2D3748;
-            --text-light: #5A6A85;
-            --border-color: #E2E8F0;
-            --white: #FFFFFF;
-            --danger: #E53E3E;
-            --success: #38A169;
-        }
-
-        /* --- Global Styles --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            background-color: var(--light-bg);
-            color: var(--text-dark);
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: var(--text-dark);
-        }
-        
-        p {
-            color: var(--text-light);
-            margin-bottom: 1rem;
-        }
-
-        /* --- Navigation --- */
-        nav {
-            background: var(--white);
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        nav .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        
-        nav .logo .icon {
-            margin-right: 8px;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            align-items: center;
-        }
-
-        nav ul li {
-            margin-left: 20px;
-        }
-
-        nav ul li a {
-            text-decoration: none;
-            color: var(--text-light);
-            font-weight: 500;
-            padding: 8px 12px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        
-        nav ul li a .icon {
-            margin-right: 6px;
-        }
-
-        nav ul li a:hover {
-            background-color: var(--light-bg);
-            color: var(--primary-color);
-        }
-        
-        nav ul li a.active {
-            background-color: var(--primary-color);
-            color: var(--white);
-        }
-        
-        #auth-container {
-            margin-left: 20px;
-        }
-
-        #auth-container button {
-            background-color: var(--primary-color);
-            color: var(--white);
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-        }
-        
-        #auth-container button .icon {
-            margin-right: 6px;
-        }
-
-        #auth-container button:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        #auth-container button.logout-btn {
-            background-color: var(--danger);
-        }
-
-        #auth-container span {
-            margin-right: 12px;
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-
-        /* --- Page Switching Logic --- */
-        .page {
-            display: none; /* All pages hidden by default */
-            animation: fadeIn 0.5s ease;
-        }
-        .page.active {
-            display: block; /* Only the active page is shown */
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-
-        /* --- Header / Hero --- */
-        .hero {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            padding: 4rem 2rem;
-            text-align: center;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            color: var(--white);
-        }
-
-        .hero h1 {
-            font-size: 2.8rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--white);
-        }
-        
-        .hero p {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 0;
-        }
-
-        /* --- Utility Classes (Forms, Buttons) --- */
-        .btn {
-            display: inline-block;
-            background: var(--primary-color);
-            color: var(--white);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            margin-top: 1rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        .btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            font-family: inherit;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
-        }
-        
-        textarea.form-input {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        /* --- Cards --- */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--white);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        }
-        
-        .card-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-        }
-        
-        .card-header .icon {
-            color: var(--primary-color);
-            margin-right: 10px;
-        }
-        
-        .card-header h3 {
-            color: var(--text-dark);
-            margin: 0;
-            font-size: 1.2rem;
-        }
-        
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .card-body p {
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-            color: var(--text-light);
-        }
-
-        .card-body strong {
-            color: var(--text-dark);
-            font-weight: 500;
-        }
-        
-        .card-body .contact-link {
-            display: inline-flex;
-            align-items: center;
-            margin-top: 10px;
-            background: var(--secondary-color);
-            color: var(--white);
-            padding: 8px 15px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .card-body .contact-link .icon {
-            margin-right: 6px;
-        }
-
-        .card-body .contact-link:hover {
-            opacity: 0.85;
-        }
-        
-        /* --- Search Bar --- */
-        .search-container {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-        
-        .search-container .icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-        }
-        
-        #search-input {
-            width: 100%;
-            padding: 12px 12px 12px 45px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        #search-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
-        }
-
-        /* --- Symptom Chat UI --- */
-        #chat-container {
-            background: var(--white);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            height: 60vh;
-        }
-        
-        #chat-history {
-            flex-grow: 1;
-            padding: 1.5rem;
-            overflow-y: auto;
-        }
-        
-        .message {
-            display: flex;
-            margin-bottom: 1rem;
-        }
-        
-        .message .icon {
-            flex-shrink: 0;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-        }
-        
-        .message.user .icon {
-            background: var(--primary-color);
-            color: var(--white);
-        }
-        
-        .message.model .icon {
-            background: var(--secondary-color);
-            color: var(--white);
-        }
-        
-        .message-content {
-            padding: 1rem;
-            border-radius: 12px;
-            max-width: 80%;
-        }
-        
-        .message.user .message-content {
-            background: var(--primary-color);
-            color: var(--white);
-            border-top-right-radius: 0;
-            margin-left: auto;
-        }
-
-        .message.model .message-content {
-            background: var(--light-bg);
-            color: var(--text-dark);
-            border: 1px solid var(--border-color);
-            border-top-left-radius: 0;
-        }
-        
-        .message.model .message-content p {
-            color: var(--text-dark);
-            margin-bottom: 10px;
-        }
-        .message.model .message-content strong {
-            color: var(--primary-color);
-        }
-        .message.model .message-content ul {
-            padding-left: 20px;
-            margin-bottom: 10px;
-        }
-        
-        #symptom-form {
-            padding: 1rem;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-        }
-        
-        #symptom-input {
-            flex-grow: 1;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            font-family: inherit;
-            font-size: 1rem;
-            resize: none;
-            margin-right: 10px;
-        }
-        #symptom-input:focus {
-             outline: none;
-            border-color: var(--primary-color);
-        }
-        
-        #symptom-form button {
-            background: var(--primary-color);
-            border: none;
-            color: var(--white);
-            padding: 0 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        #symptom-form button:hover {
-            background: var(--primary-dark);
-        }
-        
-        #symptom-form button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .typing-indicator {
-            display: none; /* Hidden by default */
-            align-items: center;
-            padding: 0 1.5rem 1rem 1.5rem;
-        }
-        
-        .typing-indicator span {
-            font-style: italic;
-            color: var(--text-light);
-            margin-left: 8px;
-        }
-
-        /* --- Loading Spinner --- */
-        .loader-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            min-height: 150px;
-        }
-        
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 5px solid var(--border-color);
-            border-bottom-color: var(--primary-color);
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-        }
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* --- Toast Notifications (Replaces alert()) --- */
-        #toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .toast {
-            background: var(--white);
-            color: var(--text-dark);
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-left: 5px solid;
-            display: flex;
-            align-items: center;
-            opacity: 0;
-            transform: translateX(100%);
-            animation: slideIn 0.5s forwards;
-        }
-        
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        .toast.success { border-color: var(--success); }
-        .toast.error { border-color: var(--danger); }
-        .toast.info { border-color: var(--primary-color); }
-        
-        .toast .icon {
-            margin-right: 10px;
-        }
-        .toast.success .icon { color: var(--success); }
-        .toast.error .icon { color: var(--danger); }
-        .toast.info .icon { color: var(--primary-color); }
-
-        /* --- Appointments & Profile --- */
-        .split-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-        
-        .list-container h3 {
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 1rem;
-        }
-        
-        .appointment-item {
-            background: var(--white);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .appointment-item .info {
-            font-size: 0.95rem;
-        }
-        .appointment-item .info strong {
-            display: block;
-            font-size: 1.1rem;
-            color: var(--text-dark);
-        }
-        .appointment-item .info span {
-            color: var(--text-light);
-        }
-        
-        .appointment-item .delete-btn {
-            background: none;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        #profile-card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-
-        /* --- Footer --- */
-        footer {
-            text-align: center;
-            padding: 2rem;
-            margin-top: 2rem;
-            background: var(--white);
-            border-top: 1px solid var(--border-color);
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-
-        /* --- Responsive --- */
-        @media (max-width: 768px) {
-            nav {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            nav .logo {
-                margin-bottom: 1rem;
-            }
-
-            nav ul {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            nav ul li {
-                margin: 5px 0;
-                width: 100%;
-            }
-
-            nav ul li a {
-                justify-content: center;
-            }
-            
-            #auth-container {
-                margin: 1rem 0 0 0;
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            #auth-container span {
-                text-align: center;
-                margin: 0 0 10px 0;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .split-layout {
-                grid-template-columns: 1fr;
-            }
-            
-            #toast-container {
-                width: calc(100% - 40px);
-                left: 20px;
-                right: 20px;
-            }
-            
-            #symptom-form {
-                flex-direction: column;
-            }
-            
-            #symptom-input {
-                margin: 0 0 10px 0;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Health Assistant - MVP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f8fb;
+      color: #222;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 15px 20px;
+      text-align: center;
+    }
+    nav {
+      background: #0056b3;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+    }
+    nav button {
+      background: transparent;
+      color: white;
+      border: none;
+      margin: 0 10px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    nav button:hover {
+      background: #00408d;
+      border-radius: 6px;
+    }
+    section {
+      display: none;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    section.active {
+      display: block;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+    .footer {
+      text-align: center;
+      padding: 15px;
+      background: #007bff;
+      color: white;
+      margin-top: 30px;
+    }
+    input, textarea, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button.action {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button.action:hover {
+      background: #0056b3;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>AI Health Assistant</h1>
+    <p>Your trusted digital healthcare companion</p>
+  </header>
 
-    <!-- Navigation Bar -->
-    <nav>
-        <div class="logo" data-page="home">
-            <!-- Lucide Icon -->
-            <span class="icon" data-lucide="heart-pulse"></span>
-            AI Health Assistant
-        </div>
-        <ul>
-            <li><a data-page="home" class="nav-link active"><span class="icon" data-lucide="home"></span>Home</a></li>
-            <li><a data-page="symptom" class="nav-link"><span class="icon" data-lucide="bot"></span>Symptom AI</a></li>
-            <li><a data-page="hospital" class="nav-link"><span class="icon" data-lucide="hospital"></span>Hospitals</a></li>
-            <li><a data-page="pharmacy" class="nav-link"><span class="icon" data-lucide="first-aid"></span>Pharmacies</a></li>
-            <li><a data-page="medicine" class="nav-link"><span class="icon" data-lucide="pill"></span>Medicines</a></li>
-            <li><a data-page="appointments" class="nav-link"><span class="icon" data-lucide="calendar-plus"></span>Appointments</a></li>
-            <li><a data-page="profile" class="nav-link"><span class="icon" data-lucide="user"></span>Profile</a></li>
-        </ul>
-        <div id="auth-container">
-            <!-- Auth content loaded by JS -->
-            <button id="auth-btn"><span class="icon" data-lucide="log-in"></span>Login</button>
-        </div>
-    </nav>
+  <nav>
+    <button onclick="showSection('home')">Home</button>
+    <button onclick="showSection('symptom')">Symptom Checker</button>
+    <button onclick="showSection('pharmacy')">Pharmacies</button>
+    <button onclick="showSection('hospital')">Hospitals</button>
+    <button onclick="showSection('medicine')">Medicines</button>
+  </nav>
 
-    <!-- Main Content Area -->
-    <main class="container">
+  <!-- HOME -->
+  <section id="home" class="active">
+    <h2>Welcome to AI Health Assistant</h2>
+    <p>This MVP demonstrates how users can get instant health advice, find nearby medical stores, connect with hospitals, and learn about medicines — all in one place.</p>
+    <div class="card">
+      <h3>Features:</h3>
+      <ul>
+        <li>🧠 AI-based Symptom Analysis</li>
+        <li>💊 Pharmacy Finder</li>
+        <li>🏥 Hospital Directory</li>
+        <li>💉 Medicine Information</li>
+      </ul>
+    </div>
+  </section>
 
-        <!-- Page 1: Home -->
-        <section id="home" class="page active">
-            <header class="hero">
-                <h1>Welcome to your AI Health Assistant</h1>
-                <p>Real-time health insights, simplified. Check symptoms, find care, and manage your health.</p>
-            </header>
+  <!-- SYMPTOM CHECKER -->
+  <section id="symptom">
+    <h2>AI Symptom Checker</h2>
+    <p>Describe your symptoms below and get an AI-based suggestion.</p>
+    <textarea id="symptomInput" placeholder="e.g., I have a sore throat and mild fever."></textarea>
+    <button class="action" onclick="analyzeSymptom()">Analyze</button>
+    <div id="symptomResult" class="card"></div>
+  </section>
 
-            <h2>Our Features</h2>
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <span class="icon" data-lucide="bot"></span><h3>Real AI Symptom Checker</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Use our advanced AI, powered by Google's Gemini model, to analyze your symptoms and get grounded, informative insights (not a medical diagnosis).</p>
-                    </div>
-                </div>
-                <div class="card">
+  <!-- PHARMACY -->
+  <section id="pharmacy">
+    <h2>Nearby Pharmacies</h2>
+    <div id="pharmacyList"></div>
+  </section>
+
+  <!-- HOSPITAL -->
+  <section id="hospital">
+    <h2>Hospitals</h2>
+    <div id="hospitalList"></div>
+  </section>
+
+  <!-- MEDICINES -->
+  <section id="medicine">
+    <h2>Medicine Information</h2>
+    <div id="medicineList"></div>
+  </section>
+
+  <div class="footer">
+    Developed by <b>Shisank</b> | AI Health Assistant MVP
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // Import Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDLK73Fp-CoUmfpWIVnj6_9s9sv-Dp8v0",
+      authDomain: "bizflow-40tte.firebaseapp.com",
+      projectId: "bizflow-40tte",
+      storageBucket: "bizflow-40tte.firebasestorage.app",
+      messagingSenderId: "52657563663",
+      appId: "1:52657563663:web:66fbee4b729f81ed50db7a"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Section switching
+    window.showSection = function(id) {
+      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    };
+
+    // AI-like Symptom Analysis
+    window.analyzeSymptom = function() {
+      const input = document.getElementById("symptomInput").value.trim();
+      const result = document.getElementById("symptomResult");
+      if (!input) {
+        result.innerHTML = "<p>Please enter your symptoms.</p>";
+        return;
+      }
+
+      let advice = "Based on your symptoms, it seems like a mild condition. Stay hydrated, rest well, and monitor your health. If it worsens, visit a doctor.";
+      if (input.includes("fever")) advice = "You may have a viral infection. Drink fluids, rest, and take paracetamol if needed. Consult a doctor if temperature exceeds 101°F.";
+      if (input.includes("cough")) advice = "Looks like a common cold or mild cough. Use steam inhalation and stay hydrated. If persistent, see a doctor.";
+      if (input.includes("headache")) advice = "This could be due to stress or dehydration. Rest, hydrate, and use a cold compress.";
+
+      result.innerHTML = `<b>AI Suggestion:</b> ${advice}`;
+    };
+
+    // Load Firebase data
+    async function loadData() {
+      try {
+        // Hospitals
+        const hospitalSnap = await getDocs(collection(db, "hospitals"));
+        let hospitalHTML = "";
+        hospitalSnap.forEach(doc => {
+          const h = doc.data();
+          hospitalHTML += `
+            <div class="card">
+              <h3>${h.name}</h3>
+              <p>📍 ${h.address}</p>
+              <p>📞 ${h.contact}</p>
+            </div>`;
+        });
+        document.getElementById("hospitalList").innerHTML = hospitalHTML || "<p>No hospitals found in database.</p>";
+
+        // Pharmacies
+        const pharmacySnap = await getDocs(collection(db, "pharmacies"));
+        let pharmacyHTML = "";
+        pharmacySnap.forEach(doc => {
+          const p = doc.data();
+          pharmacyHTML += `
+            <div class="card">
+              <h3>${p.name}</h3>
+              <p>📍 ${p.location}</p>
+              <p>🕒 ${p.hours || "Open hours not specified"}</p>
+            </div>`;
+        });
+        document.getElementById("pharmacyList").innerHTML = pharmacyHTML || "<p>No pharmacies found.</p>";
+
+        // Medicines
+        const medSnap = await getDocs(collection(db, "medicines"));
+        let medHTML = "";
+        medSnap.forEach(doc => {
+          const m = doc.data();
+          medHTML += `
+            <div class="card">
+              <h3>${m.name}</h3>
+              <p>💊 Use: ${m.use}</p>
+              <p>💰 Price: ₹${m.price}</p>
+            </div>`;
+        });
+        document.getElementById("medicineList").innerHTML = medHTML || "<p>No medicines found.</p>";
+      } catch (err) {
+        console.error("Error loading data:", err);
+      }
+    }
+    loadData();
+  </script>
+</body>
+</html>
